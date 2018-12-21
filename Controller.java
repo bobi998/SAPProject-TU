@@ -15,8 +15,7 @@ public class Controller {
 		
 		FileOutputStream fos = new FileOutputStream("users.txt" , true);
 		ObjectOutputStream oos = new ObjectOutputStream(fos);
-		FileInputStream fis =new FileInputStream("users.txt");
-		ObjectInputStream ois = new ObjectInputStream(fis);
+		
 		Scanner sc = new Scanner(System.in);
 		int choice;
 		
@@ -25,7 +24,8 @@ public class Controller {
 			StartMenu();
 			choice = sc.nextInt();
 			if(choice ==1) {
-				if(login(ois)) {
+
+				if(login()) {
 					LibMenu();
 				}
 			}
@@ -62,7 +62,7 @@ public class Controller {
 		
 	}
 	
-	public static boolean login(ObjectInputStream ois) {
+	public static boolean login() {
 		
 		Scanner sc = new Scanner(System.in);
 		System.out.println("ENTER USERNAME: ");
@@ -71,7 +71,7 @@ public class Controller {
 		String password = sc.next();
 		boolean log = false;
 		try {
-		log = login(name, password , ois);
+		log = login(name, password);
 		} catch (ClassNotFoundException | IOException e) {
 			e.printStackTrace();
 		}
@@ -90,9 +90,11 @@ public class Controller {
 		User.addUser(user , oos);
 	}
 
-	public static boolean login(String username , String password , ObjectInputStream ois) throws ClassNotFoundException, IOException {
-		
+	public static boolean login(String username , String password ) throws ClassNotFoundException, IOException {
+		FileInputStream fis =new FileInputStream("users.txt");
+		ObjectInputStream ois = new ObjectInputStream(fis);
 		while(true) {
+			
 			Object obj = ois.readObject();
 			
 			
