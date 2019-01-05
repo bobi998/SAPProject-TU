@@ -1,11 +1,17 @@
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class Book implements Serializable{
 
 	public String title;
 	public String author;
 	public String dateOfRelease;
-	public boolean taken = true;
+	public boolean taken = false;
 	public String dateToReturn = "";
 	public User user = null;
 	
@@ -15,31 +21,45 @@ public class Book implements Serializable{
 		this.dateOfRelease = dateOfRelease;
 	}
 	
-	public void addBook(Book book) {
-		
+	public String getTitle() {
+		return this.title;
 	}
 	
-	public void deleteBook(Book book) {
-		
+	public String getAuthor() {
+		return this.author;
 	}
 	
-	public void takeBook(Book book , User user) {
-		
+	public String getDateOfRelease() {
+		return this.dateOfRelease;
 	}
 	
-	public void returnBook(Book book) {
-		
+	public String dateToReturn() {
+		return this.dateToReturn;
 	}
 	
-	public void searchBook(String name) {
-		
+	public void takeBook(User user) {
+		this.taken = true;
+		this.user = user;
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.MONTH, 1);
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		this.dateToReturn = sdf.format(c.getTime());
 	}
 	
-	public void searchBook(String name , String author , String dateOfRelease) {
-		
+	public void returnBook() {
+		this.taken = false;
+		this.user = null;
+		this.dateToReturn = "";
 	}
 	
-	public void isAvailable(String name , String author , String dateOfRelease) {
+	
+	public void isAvailable() {
 		
+		if(this.taken == false) {
+			System.out.println("Book " + this.title + ", " + this.author + "is available.");
+		}
+		else {
+			System.out.println("Book " + this.title + ", " + this.author + "is taken.");
+		}
 	}
 }
