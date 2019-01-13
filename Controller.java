@@ -2,7 +2,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Controller implements AuthenticationService {
+public class Controller implements AuthenticationService,BookPersistancy,BookQuery {
 
 	
 	public static void main(String[] args) {
