@@ -1,13 +1,11 @@
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class Book implements Serializable{
 
+	
+	private static final long serialVersionUID = 1L;
 	public String title;
 	public String author;
 	public String dateOfRelease;
@@ -44,22 +42,24 @@ public class Book implements Serializable{
 		c.add(Calendar.MONTH, 1);
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		this.dateToReturn = sdf.format(c.getTime());
+		System.out.println("Book taken!");
 	}
 	
 	public void returnBook() {
 		this.taken = false;
 		this.user = null;
 		this.dateToReturn = "";
+		System.out.println("Book returned!");
 	}
 	
 	
 	public void isAvailable() {
 		
 		if(this.taken == false) {
-			System.out.println("Book " + this.title + ", " + this.author + "is available.");
+			System.out.println("Book " + this.title + " by " + this.author + " is available.");
 		}
 		else {
-			System.out.println("Book " + this.title + ", " + this.author + "is taken.");
+			System.out.println("Book " + this.title + " by " + this.author + " is taken by " + user.getName());
 		}
 	}
 }

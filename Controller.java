@@ -1,50 +1,40 @@
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Controller {
+public class Controller implements AuthenticationService {
 
-	public static ArrayList<Book> books = new ArrayList<Book>();
 	
 	public static void main(String[] args) {
 		
 		Scanner sc = new Scanner(System.in);
-		int choice;
 		
 		try {
-			loadBooks();
+			BookPersistancy.loadBooks();
 		} catch (ClassNotFoundException e1) {
-			e1.printStackTrace();
+			
 		} catch (IOException e) {
-			e.printStackTrace();
 		}
 		while(true) {
 			
 			StartMenu();
-			choice = sc.nextInt();
+			int choice = sc.nextInt();
 			if(choice ==1) {
 
 				try {
-					User u = login();
+					User u = AuthenticationService.login();
 					if(u!=null) {
 						LibMenu(u);
 					}
 				} catch (ClassNotFoundException | IOException e) {
 					System.out.println("Invalid username/password !");
+					e.printStackTrace();
 					continue;
 				}
 			}
 			if(choice == 2) {
 				try {
-					register();
+					AuthenticationService.register();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -52,14 +42,17 @@ public class Controller {
 			}
 			if(choice == 3) {
 				try {
-					saveBooks();
+					BookPersistancy.saveBooks();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				sc.close();
+				AuthenticationService.closeService();
+				BookPersistancy.closeService();
 				break;
 			}
 		}
-
+	
 	}
 
 	public static void StartMenu() {
@@ -82,9 +75,10 @@ public class Controller {
 			int choice = sc.nextInt();
 			if(choice == 1) {
 				System.out.println("Enter title of book: ");
-				String title = sc.next();
+				String title = sc.nextLine();
+				title = sc.nextLine();
 				try {
-					Book temp = searchBook(title);
+					Book temp = BookQuery.searchBook(title);
 					temp.takeBook(u);
 					u.addBook(temp);
 				}
@@ -95,9 +89,10 @@ public class Controller {
 			}
 			if(choice == 2) {
 				System.out.println("Enter title of book to return: ");
-				String title = sc.next();
+				String title = sc.nextLine();
+				title = sc.nextLine();
 				try {
-					Book temp = searchBook(title);
+					Book temp = BookQuery.searchBook(title);
 					temp.returnBook();
 					u.removeBook(temp);
 					System.out.println("Book successfuly returned!");
@@ -113,9 +108,10 @@ public class Controller {
 				choice = sc.nextInt();
 				if(choice == 1) {
 					System.out.println("Enter book title to search: ");
-					String title = sc.next();
+					String title = sc.nextLine();
+					title = sc.nextLine();
 					try {
-						Book temp = searchBook(title);
+						Book temp = BookQuery.searchBook(title);
 						temp.isAvailable();
 					}
 					catch(IOException | ClassNotFoundException e) {
@@ -125,13 +121,15 @@ public class Controller {
 				}
 				if(choice == 2) {
 					System.out.println("Enter book title to search: ");
-					String title = sc.next();
+					String title = sc.nextLine();
+					title = sc.nextLine();
 					System.out.println("Enter book author: ");
-					String author = sc.next();
+					String author = sc.nextLine();
+					sc.nextLine();
 					System.out.println("Enter date of release(dd/MM/yyyy): ");
 					String date = sc.next();
 					try {
-						Book temp = searchBook(title , author , date);
+						Book temp = BookQuery.searchBook(title , author , date);
 						temp.isAvailable();
 					}
 					catch(IOException | ClassNotFoundException e) {
@@ -154,7 +152,7 @@ public class Controller {
 			}
 			if(choice == 5) {
 				try {
-					addBook();
+					BookPersistancy.addBook();
 				} catch (ClassNotFoundException | IOException e) {
 					e.printStackTrace();
 				}
@@ -164,123 +162,6 @@ public class Controller {
 				return;
 			}
 		}
-		
-	}
-	
-	
-	
-	public static void register() throws IOException {
-		
-		FileOutputStream fos = new FileOutputStream("users.txt" , true);
-		ObjectOutputStream oos = new ObjectOutputStream(fos);
-		Scanner sc = new Scanner(System.in);
-		System.out.println("ENTER USERRNAME: ");
-		String name = sc.next();
-		System.out.println("ENTER PASSWORD");
-		String password = sc.next();
-		
-		User user = new User(name , password);
-		User.addUser(user , oos);
-	}
-
-	public static User login() throws ClassNotFoundException, IOException {
-		FileInputStream fis =new FileInputStream("users.txt");
-		ObjectInputStream ois = new ObjectInputStream(fis);
-		Scanner sc = new Scanner(System.in);
-		System.out.println("ENTER USERNAME: ");
-		String username = sc.next();
-		System.out.println("ENTER PASSWORD");
-		String password = sc.next();
-		while(true) {
-			
-			Object obj = ois.readObject();
-			
-			
-			if(obj instanceof User) {
-				User u = (User)obj;
-				if(u.getName().equals(username)&&u.getPassword().equals(password)) {
-					System.out.println("Login successful");
-					return u;
-				}
-			}
-			
-		}
-		
-	}
-	
-	public static void addBook() throws ClassNotFoundException, IOException {
-		Scanner sc = new Scanner(System.in);
-		System.out.println("Enter book title: ");
-		String title = sc.next();
-		sc.nextLine();
-		System.out.println("Enter book author: ");
-		String author = sc.nextLine();
-		System.out.println("Enter book date of release (dd/MM/yyyy format): ");
-		String dateOfRelease = sc.next();
-		Book temp = new Book (title , author , dateOfRelease);
-		books.add(temp);
-		System.out.println("Book successfuly added!");
-	}
-	
-	public static void loadBooks() throws IOException, ClassNotFoundException {
-		
-		if(Files.exists(Paths.get("books.txt"))) {
-		FileInputStream fis =new FileInputStream("books.txt");
-		ObjectInputStream ois = new ObjectInputStream(fis);
-		while(true) {
-			Object obj = ois.readObject();
-			if(obj instanceof Book) {
-				books.add((Book)obj);
-			}
-			else if(obj == null) {
-				break;
-			}
-		}
-		}
-		else {
-			return;
-		}
-	}
-	
-	public static void saveBooks() throws IOException {
-		FileOutputStream fos = new FileOutputStream("books.txt");
-		ObjectOutputStream oos = new ObjectOutputStream(fos);
-		int i = 0;
-		while(books.size() > i) {
-			
-			oos.writeObject(books.get(i));
-			i++;
-		}
-	}
-	
-	public static Book searchBook(String title , String author , String dateOfRelease) throws IOException, ClassNotFoundException {
-		
-		int i = 0;
-		
-		while( books.size() > i) {
-			
-				if(books.get(i).getTitle().equals(title) && books.get(i).getAuthor().equals(author) && books.get(i).getDateOfRelease().equals(dateOfRelease)) {
-					Book temp = books.get(i);
-					return temp;
-				}
-				i++;
-		}
-		return null;
-	}
-	
-	public static Book searchBook(String title) throws IOException, ClassNotFoundException {
-		
-		int i = 0;
-
-		while( books.size() > i) {
-			
-				if(books.get(i).getTitle().equals(title)) {
-					Book temp = books.get(i);
-					return temp;
-				}
-				i++;
-		}
-		return null;
 		
 	}
 }

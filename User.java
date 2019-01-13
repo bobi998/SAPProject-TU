@@ -1,6 +1,3 @@
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
@@ -10,6 +7,8 @@ import java.util.Date;
 
 public class User implements Serializable{
 
+	
+	private static final long serialVersionUID = 1L;
 	public String name;
 	public String password;
 	public ArrayList<Book> books = new ArrayList<Book>();
@@ -25,13 +24,6 @@ public class User implements Serializable{
 	
 	public String getPassword() {
 		return this.password;
-	}
-	public static void addUser(User user , ObjectOutputStream oos) {
-		try {
-			oos.writeObject(user);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	public void addBook(Book book) {
